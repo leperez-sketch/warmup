@@ -3,65 +3,114 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Tug of War: Language Festival</title>
+  <title>Language Festival - Tug of War Pro</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <header class="navbar">
-    <button class="nav-btn">🏠 HOME</button>
-    <h1 class="game-title">TUG OF WAR: ENGLISH LANGUAGE</h1>
-    <div class="lang-selector">🇬🇧 EN ▾</div>
-  </header>
 
-  <main class="game-container">
-    <section class="card team-card blue-team">
-      <div class="team-header">
-        <h2>BLUE KNIGHTS</h2>
-        <span class="score" id="score-blue">4</span>
-      </div>
-      <div class="question-box">
-        <p class="question-text">Which tense:<br><strong>"I will go tomorrow"</strong>?</p>
-        <div class="options" id="options-blue">
-          <button class="opt-btn" onclick="selectAnswer('blue', 'A')">A. Present Simple</button>
-          <button class="opt-btn correct" onclick="selectAnswer('blue', 'B')">B. Future Simple</button>
-          <button class="opt-btn" onclick="selectAnswer('blue', 'C')">C. Present Continuous</button>
-          <button class="opt-btn" onclick="selectAnswer('blue', 'D')">D. Past Simple</button>
+  <!-- PANTALLA DE INICIO / SELECCIÓN DE NIVEL -->
+  <div id="home-screen" class="screen active">
+    <div class="home-card">
+      <div class="festival-badge">🎪 INTERNATIONAL LANGUAGE FESTIVAL</div>
+      <h1 class="home-title">TUG OF WAR<br><span class="subtitle">ENGLISH CHALLENGE</span></h1>
+      <p class="home-description">¡Compite en tiempo real! Selecciona el nivel de dificultad para comenzar el desafío multicultural.</p>
+      
+      <div class="level-selection">
+        <h3>Selecciona el Nivel:</h3>
+        <div class="level-grid">
+          <button class="level-btn active" onclick="selectLevel('ALL', this)">
+            <span class="lvl-title">TODOS LOS NIVELES</span>
+            <span class="lvl-desc">Mezcla completa A1 - B1</span>
+          </button>
+          <button class="level-btn" onclick="selectLevel('A1', this)">
+            <span class="lvl-title">NIVEL A1</span>
+            <span class="lvl-desc">Principiante / Vocabulario básico</span>
+          </button>
+          <button class="level-btn" onclick="selectLevel('A2', this)">
+            <span class="lvl-title">NIVEL A2</span>
+            <span class="lvl-desc">Elemental / Tiempos simples</span>
+          </button>
+          <button class="level-btn" onclick="selectLevel('B1', this)">
+            <span class="lvl-title">NIVEL B1</span>
+            <span class="lvl-desc">Intermedio / Estructuras avanzadas</span>
+          </button>
         </div>
       </div>
-    </section>
 
-    <section class="stage-container">
-      <div class="stage-header">
-        <span class="team-score-summary blue-color">Blue: <strong id="summary-blue">4</strong></span>
-        <div class="timer-badge">⏱️ <span id="timer">01:15</span></div>
-        <span class="team-score-summary red-color">Red: <strong id="summary-red">3</strong></span>
-      </div>
+      <button class="start-game-btn" onclick="startGame()">🚀 ¡EMPEZAR JUEGO!</button>
+    </div>
+  </div>
 
-      <div class="canvas-wrapper">
-        <canvas id="tugCanvas" width="600" height="320"></canvas>
+  <!-- PANTALLA PRINCIPAL DEL JUEGO -->
+  <div id="game-screen" class="screen hidden">
+    <header class="navbar">
+      <button class="nav-btn" onclick="showHomeScreen()">🏠 MENÚ PRINCIPAL</button>
+      <div class="game-info">
+        <span class="game-title">TUG OF WAR: ENGLISH FESTIVAL</span>
+        <span class="current-level-tag" id="level-indicator">Nivel: ALL</span>
       </div>
+      <button id="musicToggleBtn" class="sound-btn" onclick="toggleAudio()">🎵 Música: ON</button>
+    </header>
 
-      <div class="audio-controls">
-        <button id="musicToggleBtn" onclick="toggleAudio()">🎵 Música: ON</button>
-      </div>
-    </section>
-
-    <section class="card team-card red-team">
-      <div class="team-header">
-        <h2>RED DRAGONS</h2>
-        <span class="score" id="score-red">3</span>
-      </div>
-      <div class="question-box">
-        <p class="question-text">Choose the correct form:<br><strong>"There are two cats"</strong></p>
-        <div class="options" id="options-red">
-          <button class="opt-btn correct" onclick="selectAnswer('red', 'A')">A. There are two cats</button>
-          <button class="opt-btn" onclick="selectAnswer('red', 'B')">B. There two cats</button>
-          <button class="opt-btn" onclick="selectAnswer('red', 'C')">C. There be two cats</button>
-          <button class="opt-btn" onclick="selectAnswer('red', 'D')">D. There is two cats</button>
+    <main class="game-container">
+      <!-- Equipo Izquierda: Blue Knights -->
+      <section class="card team-card blue-team">
+        <div class="team-header">
+          <h2>BLUE KNIGHTS</h2>
+          <span class="score" id="score-blue">0</span>
         </div>
-      </div>
-    </section>
-  </main>
+        <div class="question-box">
+          <div class="q-badge-bar">
+            <span class="q-level-badge" id="blue-q-level">A1</span>
+            <span class="q-counter" id="blue-q-count">Pregunta 1</span>
+          </div>
+          <p class="question-text" id="blue-q-text">Cargando pregunta...</p>
+          <div class="options" id="options-blue"></div>
+        </div>
+      </section>
+
+      <!-- Escenario Central: Animación Canvas y Timer -->
+      <section class="stage-container">
+        <div class="stage-header">
+          <span class="team-score-summary blue-color">Blue: <strong id="summary-blue">0</strong></span>
+          <div class="timer-badge">⏱️ <span id="timer">02:00</span></div>
+          <span class="team-score-summary red-color">Red: <strong id="summary-red">0</strong></span>
+        </div>
+
+        <div class="canvas-wrapper">
+          <canvas id="tugCanvas" width="680" height="340"></canvas>
+        </div>
+
+        <div class="feedback-msg" id="feedback-banner">¡Listos para tirar!</div>
+      </section>
+
+      <!-- Equipo Derecha: Red Dragons -->
+      <section class="card team-card red-team">
+        <div class="team-header">
+          <h2>RED DRAGONS</h2>
+          <span class="score" id="score-red">0</span>
+        </div>
+        <div class="question-box">
+          <div class="q-badge-bar">
+            <span class="q-level-badge" id="red-q-level">A1</span>
+            <span class="q-counter" id="red-q-count">Pregunta 1</span>
+          </div>
+          <p class="question-text" id="red-q-text">Cargando pregunta...</p>
+          <div class="options" id="options-red"></div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- MODAL DE GANADOR -->
+  <div id="winner-modal" class="modal hidden">
+    <div class="modal-content">
+      <h2 id="winner-title">🎉 ¡EQUIPO GANADOR! 🎉</h2>
+      <p id="winner-details">Puntaje Final: 0 - 0</p>
+      <button class="start-game-btn" onclick="startGame()">🔄 Jugar de nuevo</button>
+      <button class="nav-btn" onclick="showHomeScreen()" style="margin-top: 10px;">🏠 Cambiar Nivel</button>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
