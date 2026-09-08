@@ -1,101 +1,68 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EFL Tug of War - English Challenge</title>
-    <link rel="stylesheet" href="styles.css">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tug of War: Language Festival</title>
+  <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="container">
-        <!-- Pantalla de Configuración -->
-        <div id="setup-screen" class="card">
-            <h1>🪢 EFL Tug of War 🏆</h1>
-            <p>¡Compite respondiendo preguntas de inglés para ganar la cuerda!</p>
-            
-            <div class="form-group">
-                <label for="level-select">Selecciona el Nivel EFL (CEFR):</label>
-                <select id="level-select">
-                    <option value="ALL">🔀 Todos los Niveles (Mixto)</option>
-                    <option value="A1">🟢 A1 - Principiante</option>
-                    <option value="A2">🟡 A2 - Elemental</option>
-                    <option value="B1">🟠 B1 - Intermedio</option>
-                    <option value="B2">🔵 B2 - Intermedio Alto</option>
-                    <option value="C1">🔴 C1 - Avanzado</option>
-                </select>
-            </div>
+  <header class="navbar">
+    <button class="nav-btn">🏠 HOME</button>
+    <h1 class="game-title">TUG OF WAR: ENGLISH LANGUAGE</h1>
+    <div class="lang-selector">🇬🇧 EN ▾</div>
+  </header>
 
-            <div class="teams-setup">
-                <div class="team-input red">
-                    <label for="team1-name">Equipo Rojo (Izquierda):</label>
-                    <input type="text" id="team1-name" value="Equipo Rojo">
-                </div>
-                <div class="team-input blue">
-                    <label for="team2-name">Equipo Azul (Derecha):</label>
-                    <input type="text" id="team2-name" value="Equipo Azul">
-                </div>
-            </div>
-
-            <button id="start-btn" class="btn-primary">¡Comenzar Juego!</button>
+  <main class="game-container">
+    <section class="card team-card blue-team">
+      <div class="team-header">
+        <h2>BLUE KNIGHTS</h2>
+        <span class="score" id="score-blue">4</span>
+      </div>
+      <div class="question-box">
+        <p class="question-text">Which tense:<br><strong>"I will go tomorrow"</strong>?</p>
+        <div class="options" id="options-blue">
+          <button class="opt-btn" onclick="selectAnswer('blue', 'A')">A. Present Simple</button>
+          <button class="opt-btn correct" onclick="selectAnswer('blue', 'B')">B. Future Simple</button>
+          <button class="opt-btn" onclick="selectAnswer('blue', 'C')">C. Present Continuous</button>
+          <button class="opt-btn" onclick="selectAnswer('blue', 'D')">D. Past Simple</button>
         </div>
+      </div>
+    </section>
 
-        <!-- Pantalla del Juego -->
-        <div id="game-screen" class="card hidden">
-            <!-- Marcador y Campo de Juego -->
-            <div class="game-header">
-                <div class="team-score team-red-score">
-                    <span id="display-team1">Equipo Rojo</span>
-                    <span id="score-team1" class="score-badge">0</span>
-                </div>
-                <div class="level-indicator">
-                    Nivel: <strong id="current-level-display">A1</strong>
-                </div>
-                <div class="team-score team-blue-score">
-                    <span id="score-team2" class="score-badge">0</span>
-                    <span id="display-team2">Equipo Azul</span>
-                </div>
-            </div>
+    <section class="stage-container">
+      <div class="stage-header">
+        <span class="team-score-summary blue-color">Blue: <strong id="summary-blue">4</strong></span>
+        <div class="timer-badge">⏱️ <span id="timer">01:15</span></div>
+        <span class="team-score-summary red-color">Red: <strong id="summary-red">3</strong></span>
+      </div>
 
-            <!-- Escenario Visual de Tug of War -->
-            <div class="tug-stage">
-                <div class="mud-pit"></div>
-                <div class="rope-line"></div>
-                <div class="rope-knot" id="rope-knot">
-                    🚩
-                </div>
-                <div class="team-character team-left">🤼‍♂️</div>
-                <div class="team-character team-right">🤼‍♀️</div>
-            </div>
+      <div class="canvas-wrapper">
+        <canvas id="tugCanvas" width="600" height="320"></canvas>
+      </div>
 
-            <!-- Turno y Categoría -->
-            <div class="turn-banner" id="turn-banner">
-                Turno de: <span id="current-turn-team">Equipo Rojo</span>
-            </div>
+      <div class="audio-controls">
+        <button id="musicToggleBtn" onclick="toggleAudio()">🎵 Música: ON</button>
+      </div>
+    </section>
 
-            <!-- Tarjeta de Pregunta -->
-            <div class="question-card">
-                <div class="question-meta">
-                    <span id="q-category" class="tag">Vocabulario</span>
-                    <span id="q-level" class="tag level">A1</span>
-                </div>
-                <h3 id="question-text">¿Cargando pregunta...?</h3>
-                <div class="options-grid" id="options-container">
-                    <!-- Opciones inyectadas por JS -->
-                </div>
-            </div>
+    <section class="card team-card red-team">
+      <div class="team-header">
+        <h2>RED DRAGONS</h2>
+        <span class="score" id="score-red">3</span>
+      </div>
+      <div class="question-box">
+        <p class="question-text">Choose the correct form:<br><strong>"There are two cats"</strong></p>
+        <div class="options" id="options-red">
+          <button class="opt-btn correct" onclick="selectAnswer('red', 'A')">A. There are two cats</button>
+          <button class="opt-btn" onclick="selectAnswer('red', 'B')">B. There two cats</button>
+          <button class="opt-btn" onclick="selectAnswer('red', 'C')">C. There be two cats</button>
+          <button class="opt-btn" onclick="selectAnswer('red', 'D')">D. There is two cats</button>
         </div>
+      </div>
+    </section>
+  </main>
 
-        <!-- Pantalla de Game Over -->
-        <div id="winner-modal" class="modal hidden">
-            <div class="modal-content card">
-                <h2 id="winner-title">🎉 ¡Tenemos un Ganador!</h2>
-                <p id="winner-message">El Equipo Rojo ha ganado la cuerda.</p>
-                <button id="restart-btn" class="btn-primary">Jugar de Nuevo</button>
-            </div>
-        </div>
-    </div>
-
-    <script src="script.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
