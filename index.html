@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EFL Tug of War - English Challenge</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <!-- Pantalla de Configuración -->
+        <div id="setup-screen" class="card">
+            <h1>🪢 EFL Tug of War 🏆</h1>
+            <p>¡Compite respondiendo preguntas de inglés para ganar la cuerda!</p>
+            
+            <div class="form-group">
+                <label for="level-select">Selecciona el Nivel EFL (CEFR):</label>
+                <select id="level-select">
+                    <option value="ALL">🔀 Todos los Niveles (Mixto)</option>
+                    <option value="A1">🟢 A1 - Principiante</option>
+                    <option value="A2">🟡 A2 - Elemental</option>
+                    <option value="B1">🟠 B1 - Intermedio</option>
+                    <option value="B2">🔵 B2 - Intermedio Alto</option>
+                    <option value="C1">🔴 C1 - Avanzado</option>
+                </select>
+            </div>
+
+            <div class="teams-setup">
+                <div class="team-input red">
+                    <label for="team1-name">Equipo Rojo (Izquierda):</label>
+                    <input type="text" id="team1-name" value="Equipo Rojo">
+                </div>
+                <div class="team-input blue">
+                    <label for="team2-name">Equipo Azul (Derecha):</label>
+                    <input type="text" id="team2-name" value="Equipo Azul">
+                </div>
+            </div>
+
+            <button id="start-btn" class="btn-primary">¡Comenzar Juego!</button>
+        </div>
+
+        <!-- Pantalla del Juego -->
+        <div id="game-screen" class="card hidden">
+            <!-- Marcador y Campo de Juego -->
+            <div class="game-header">
+                <div class="team-score team-red-score">
+                    <span id="display-team1">Equipo Rojo</span>
+                    <span id="score-team1" class="score-badge">0</span>
+                </div>
+                <div class="level-indicator">
+                    Nivel: <strong id="current-level-display">A1</strong>
+                </div>
+                <div class="team-score team-blue-score">
+                    <span id="score-team2" class="score-badge">0</span>
+                    <span id="display-team2">Equipo Azul</span>
+                </div>
+            </div>
+
+            <!-- Escenario Visual de Tug of War -->
+            <div class="tug-stage">
+                <div class="mud-pit"></div>
+                <div class="rope-line"></div>
+                <div class="rope-knot" id="rope-knot">
+                    🚩
+                </div>
+                <div class="team-character team-left">🤼‍♂️</div>
+                <div class="team-character team-right">🤼‍♀️</div>
+            </div>
+
+            <!-- Turno y Categoría -->
+            <div class="turn-banner" id="turn-banner">
+                Turno de: <span id="current-turn-team">Equipo Rojo</span>
+            </div>
+
+            <!-- Tarjeta de Pregunta -->
+            <div class="question-card">
+                <div class="question-meta">
+                    <span id="q-category" class="tag">Vocabulario</span>
+                    <span id="q-level" class="tag level">A1</span>
+                </div>
+                <h3 id="question-text">¿Cargando pregunta...?</h3>
+                <div class="options-grid" id="options-container">
+                    <!-- Opciones inyectadas por JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Pantalla de Game Over -->
+        <div id="winner-modal" class="modal hidden">
+            <div class="modal-content card">
+                <h2 id="winner-title">🎉 ¡Tenemos un Ganador!</h2>
+                <p id="winner-message">El Equipo Rojo ha ganado la cuerda.</p>
+                <button id="restart-btn" class="btn-primary">Jugar de Nuevo</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
