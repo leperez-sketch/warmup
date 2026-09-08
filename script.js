@@ -43,7 +43,7 @@ let timerInterval = null;
 
 // CANVAS SETUP
 const canvas = document.getElementById('tugCanvas');
-const ctx = canvas.getContext('2d');
+const ctx = canvas ? canvas.getContext('2d') : null;
 
 // PERSONAJES MULTICULTURALES
 const blueCharacters = [
@@ -125,16 +125,33 @@ function selectLevel(lvl, btnElement) {
 
 function showHomeScreen() {
   clearInterval(timerInterval);
-  document.getElementById('home-screen').classList.add('active');
-  document.getElementById('game-screen').classList.add('hidden');
-  document.getElementById('winner-modal').classList.add('hidden');
+  const homeScreen = document.getElementById('home-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const winnerModal = document.getElementById('winner-modal');
+
+  homeScreen.classList.add('active');
+  homeScreen.classList.remove('hidden');
+  
+  gameScreen.classList.remove('active');
+  gameScreen.classList.add('hidden');
+  
+  winnerModal.classList.add('hidden');
 }
 
 function startGame() {
   initAudio();
-  document.getElementById('home-screen').classList.remove('active');
-  document.getElementById('winner-modal').classList.add('hidden');
-  document.getElementById('game-screen').classList.remove('hidden');
+  const homeScreen = document.getElementById('home-screen');
+  const gameScreen = document.getElementById('game-screen');
+  const winnerModal = document.getElementById('winner-modal');
+
+  // Alternar visualización usando clases active y hidden
+  homeScreen.classList.remove('active');
+  homeScreen.classList.add('hidden');
+
+  gameScreen.classList.add('active');
+  gameScreen.classList.remove('hidden');
+
+  winnerModal.classList.add('hidden');
 
   document.getElementById('level-indicator').innerText = `Nivel: ${selectedLevel}`;
 
@@ -178,7 +195,7 @@ function updateScoresUI() {
   document.getElementById('summary-red').innerText = scoreRed;
 }
 
-// CÓDIGO DE PREGUNTAS
+// CARGA DE PREGUNTAS
 function loadQuestion(team) {
   const isBlue = team === 'blue';
   const pool = isBlue ? activeBluePool : activeRedPool;
@@ -249,6 +266,7 @@ function handleAnswer(team, selectedIdx, correctIdx, btn) {
 
 // DIBUJO DE PERSONAJES
 function drawDetailedCharacter(char, centerX, isBlue) {
+  if (!ctx) return;
   const x = centerX + char.xOffset;
   const pullStrain = Math.sin(animationFrame * 0.15) * 3;
   const leanAngle = isBlue ? -0.22 : 0.22;
@@ -275,7 +293,11 @@ function drawDetailedCharacter(char, centerX, isBlue) {
 
   ctx.fillStyle = char.outfit;
   ctx.beginPath();
-  ctx.roundRect(-14, -10, 28, 36, 8);
+  if (ctx.roundRect) {
+    ctx.roundRect(-14, -10, 28, 36, 8);
+  } else {
+    ctx.rect(-14, -10, 28, 36);
+  }
   ctx.fill();
 
   ctx.fillStyle = char.skin;
@@ -345,6 +367,7 @@ function drawDetailedCharacter(char, centerX, isBlue) {
 }
 
 function animateStage() {
+  if (!ctx) return;
   animationFrame++;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -408,4 +431,6 @@ function endGame() {
   details.innerText = `Puntaje Final: Blue Knights ${scoreBlue} - ${scoreRed} Red Dragons`;
 }
 
-animateStage();
+if (ctx) {
+  animateStage();
+}
