@@ -295,10 +295,31 @@ const redCharacters = [
 ];
 
 // REPRODUCTOR DE MÚSICA CON ARCHIVO EXTERNO
-// Asegúrate de que el nombre coincida exactamente con tu archivo en GitHub (ej: 'musica.mp3')
 const bgMusic = new Audio('music.mp3');
 bgMusic.loop = true;
-bgMusic.volume = 0.7; // Ajusta el volumen de 0.0 a 1.0 según prefieras
+bgMusic.volume = 0.7;
+
+// EFECTOS SINTETIZADOS PARA RESPUESTAS
+const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+function playSynthNote(freq, type, duration, vol) {
+  try {
+    if (audioCtx.state === 'suspended') {
+      audioCtx.resume();
+    }
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+  } catch (e) {
+    console.warn("Error en el contexto de audio:", e);
+  }
+}
 
 function toggleAudio() {
   const btn = document.getElementById('musicToggleBtn');
@@ -308,7 +329,7 @@ function toggleAudio() {
       btn.innerText = "🎵 Música: ON";
       btn.style.background = "#10b981";
     }).catch(err => {
-      console.warn("Autoplay bloqueado por el navegador hasta interactuar:", err);
+      console.warn("Autoplay bloqueado hasta interactuar:", err);
     });
   } else {
     bgMusic.pause();
@@ -340,7 +361,6 @@ function showHomeScreen() {
 }
 
 function startGame() {
-  initAudio();
   const homeScreen = document.getElementById('home-screen');
   const gameScreen = document.getElementById('game-screen');
   const winnerModal = document.getElementById('winner-modal');
@@ -355,7 +375,6 @@ function startGame() {
 
   document.getElementById('level-indicator').innerText = `Nivel: ${selectedLevel}`;
 
-  // Carga todas las preguntas (A1 a C1) cuando se selecciona ALL
   if (selectedLevel === 'ALL') {
     const allQuestions = [
       ...questionBank.A1,
