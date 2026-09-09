@@ -294,61 +294,26 @@ const redCharacters = [
   { name: 'Mateo', skin: '#e0ac69', outfit: '#ef4444', hair: '#292524', style: 'curly', xOffset: 220 }
 ];
 
-// WEB AUDIO SYNTHESIZER
-let audioCtx = null;
-let isAudioPlaying = false;
-let musicLoopInterval = null;
-
-function initAudio() {
-  if (!audioCtx) {
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  }
-}
-
-function playSynthNote(freq, type = 'triangle', duration = 0.2, volume = 0.1) {
-  if (!audioCtx || !isAudioPlaying) return;
-  try {
-    const osc = audioCtx.createOscillator();
-    const gain = audioCtx.createGain();
-    osc.type = type;
-    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(volume, audioCtx.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + duration);
-    osc.connect(gain);
-    gain.connect(audioCtx.destination);
-    osc.start();
-    osc.stop(audioCtx.currentTime + duration);
-  } catch(e) {}
-}
-
-function startUpbeatMusicLoop() {
-  const melody = [261.63, 329.63, 392.00, 523.25, 440.00, 349.23, 392.00, 523.25];
-  const bassline = [130.81, 130.81, 174.61, 196.00];
-  let step = 0;
-
-  musicLoopInterval = setInterval(() => {
-    if (!isAudioPlaying) return;
-    playSynthNote(melody[step % melody.length], 'sine', 0.2, 0.08);
-    if (step % 2 === 0) {
-      playSynthNote(bassline[(step / 2) % bassline.length], 'triangle', 0.35, 0.12);
-    }
-    step++;
-  }, 220);
-}
+// REPRODUCTOR DE MÚSICA CON ARCHIVO EXTERNO
+// Asegúrate de que el nombre coincida exactamente con tu archivo en GitHub (ej: 'musica.mp3')
+const bgMusic = new Audio('music.mp3');
+bgMusic.loop = true;
+bgMusic.volume = 0.7; // Ajusta el volumen de 0.0 a 1.0 según prefieras
 
 function toggleAudio() {
-  initAudio();
   const btn = document.getElementById('musicToggleBtn');
-  if (isAudioPlaying) {
-    isAudioPlaying = false;
-    clearInterval(musicLoopInterval);
+  
+  if (bgMusic.paused) {
+    bgMusic.play().then(() => {
+      btn.innerText = "🎵 Música: ON";
+      btn.style.background = "#10b981";
+    }).catch(err => {
+      console.warn("Autoplay bloqueado por el navegador hasta interactuar:", err);
+    });
+  } else {
+    bgMusic.pause();
     btn.innerText = "🎵 Música: OFF";
     btn.style.background = "#475569";
-  } else {
-    isAudioPlaying = true;
-    startUpbeatMusicLoop();
-    btn.innerText = "🎵 Música: ON";
-    btn.style.background = "#10b981";
   }
 }
 
