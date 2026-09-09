@@ -1,4 +1,13 @@
-// BANCO DE 250 PREGUNTAS (50 POR NIVEL)
+// script.js - Cinchada Académica (Tug of War)
+
+// 1. CARGA DE IMÁGENES PNG
+const imgAzul = new Image();
+imgAzul.src = 'jugador_azul.png';
+
+const imgRojo = new Image();
+imgRojo.src = 'jugador_rojo(1).png';
+
+// 2. BANCO DE 250 PREGUNTAS (50 POR NIVEL)
 const questionBank = {
   A1: [
     { q: "What is the English word for 'Perro'?", options: ["Cat", "Dog", "Fish", "Bird"], answer: 1 },
@@ -262,7 +271,7 @@ const questionBank = {
   ]
 };
 
-// ESTADO DEL JUEGO
+// 3. ESTADO DEL JUEGO
 let selectedLevel = 'ALL';
 let currentBlueIndex = 0;
 let currentRedIndex = 0;
@@ -280,19 +289,6 @@ let timerInterval = null;
 // CANVAS SETUP
 const canvas = document.getElementById('tugCanvas');
 const ctx = canvas ? canvas.getContext('2d') : null;
-
-// PERSONAJES MULTICULTURALES
-const blueCharacters = [
-  { name: 'Aisha', skin: '#8d5524', outfit: '#2563eb', hair: '#1e293b', style: 'hijab', xOffset: -230 },
-  { name: 'Budi', skin: '#f1c27d', outfit: '#1d4ed8', hair: '#0f172a', style: 'songkok', xOffset: -150 },
-  { name: 'Kofi', skin: '#452209', outfit: '#3b82f6', hair: '#0f172a', style: 'fade_cap', xOffset: -70 }
-];
-
-const redCharacters = [
-  { name: 'Mei', skin: '#ffd1a4', outfit: '#dc2626', hair: '#1e1b4b', style: 'pigtails', xOffset: 70 },
-  { name: 'Ravi', skin: '#c68642', outfit: '#b91c1c', hair: '#1e293b', style: 'turban', xOffset: 150 },
-  { name: 'Mateo', skin: '#e0ac69', outfit: '#ef4444', hair: '#292524', style: 'curly', xOffset: 230 }
-];
 
 // REPRODUCTOR DE MÚSICA CON ARCHIVO EXTERNO
 const bgMusic = new Audio('music.mp3');
@@ -323,7 +319,6 @@ function playSynthNote(freq, type, duration, vol) {
 
 function toggleAudio() {
   const btn = document.getElementById('musicToggleBtn');
-  
   if (bgMusic.paused) {
     bgMusic.play().then(() => {
       btn.innerText = "🎵 Música: ON";
@@ -491,7 +486,7 @@ function handleAnswer(team, selectedIdx, correctIdx, btn) {
   }
 }
 
-// DIBUJO DEL ESCENARIO Y FONDO DEL ESTADIO
+// 4. RENDERIZADO DEL ESCENARIO
 function drawBackground() {
   // Cielo en degradado
   const skyGrad = ctx.createLinearGradient(0, 0, 0, 160);
@@ -590,155 +585,36 @@ function drawRopeAndFlag(centerX) {
   ctx.fill();
 }
 
-// DIBUJO ANIMADO DE PERSONAJES EN POSICIÓN DE FUERZA
-function drawDetailedCharacter(char, centerX, isBlue) {
-  if (!ctx) return;
-  const ropeY = 202;
-  const baseX = centerX + char.xOffset;
+// 5. DIBUJO DE EQUIPOS CON IMÁGENES PNG
+function drawTeamPNG(img, offsets, centerX, isBlue) {
+  if (!ctx || !img.complete) return;
 
-  // Ciclo dinámico de halado
+  const groundY = 245; // Base de los pies sobre el césped
   const pullCycle = Math.sin(animationFrame * 0.14 + (isBlue ? 0 : Math.PI));
-  const pullDistance = pullCycle * 7;
-  const dir = isBlue ? 1 : -1;
+  const animX = pullCycle * 6; // Balanceo de movimiento al halar
 
-  // Inclinación severa de fuerza (- es inclinación a la izquierda, + a la derecha)
-  const leanAngle = isBlue ? -0.38 + (pullCycle * 0.04) : 0.38 - (pullCycle * 0.04);
-  const x = baseX - (dir * pullDistance);
-  const y = 205;
+  offsets.forEach(xOffset => {
+    const posX = centerX + xOffset + animX;
 
-  ctx.save();
-
-  // Sombra del atleta en el suelo
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
-  ctx.beginPath();
-  ctx.ellipse(x, 244, 22, 6, 0, 0, Math.PI * 2);
-  ctx.fill();
-
-  // PIERNAS FIRMES EN EL SUELO (Dibujadas tras el torso)
-  ctx.strokeStyle = '#0f172a';
-  ctx.lineWidth = 8;
-  ctx.lineCap = 'round';
-
-  // Pierna trasera (extendida apoyando el esfuerzo)
-  const legBackX = isBlue ? x - 26 : x + 26;
-  ctx.beginPath();
-  ctx.moveTo(x, 215);
-  ctx.lineTo(legBackX, 242);
-  ctx.stroke();
-
-  // Pierna delantera (flectada haciendo palanca)
-  const kneeX = isBlue ? x + 10 : x - 10;
-  const footFrontX = isBlue ? x - 6 : x + 6;
-  ctx.beginPath();
-  ctx.moveTo(x, 215);
-  ctx.lineTo(kneeX, 230);
-  ctx.lineTo(footFrontX, 242);
-  ctx.stroke();
-
-  // TORSO Y CABEZA (Inclinados hacia atrás por la tensión)
-  ctx.save();
-  ctx.translate(x, 210);
-  ctx.rotate(leanAngle);
-
-  // Camiseta / Uniforme
-  ctx.fillStyle = char.outfit;
-  if (ctx.roundRect) {
-    ctx.roundRect(-13, -32, 26, 36, 6);
-  } else {
-    ctx.fillRect(-13, -32, 26, 36);
-  }
-  ctx.fill();
-
-  // Cuello y Cabeza
-  ctx.fillStyle = char.skin;
-  ctx.fillRect(-4, -38, 8, 8);
-  ctx.beginPath();
-  ctx.arc(0, -48, 14, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Expresión facial (Esfuerzo / Ojos apretados y boca)
-  ctx.fillStyle = '#0f172a';
-  ctx.fillRect(dir * 2, -51, 3, 3);
-  ctx.beginPath();
-  ctx.arc(dir * 4, -43, 3, 0, Math.PI);
-  ctx.fill();
-
-  // Gota de sudor animada
-  ctx.fillStyle = '#38bdf8';
-  ctx.beginPath();
-  ctx.arc(-dir * 12, -50, 2, 0, Math.PI * 2);
-  ctx.fill();
-
-  // Peinados y Atavíos Culturales
-  ctx.fillStyle = char.hair;
-  if (char.style === 'hijab') {
-    ctx.fillStyle = '#0284c7';
+    ctx.save();
+    // Dibujar sombra ovalada en el suelo
+    ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.beginPath();
-    ctx.arc(0, -48, 16, 0, Math.PI * 2);
+    ctx.ellipse(posX, groundY - 2, 25, 7, 0, 0, Math.PI * 2);
     ctx.fill();
-  } else if (char.style === 'songkok') {
-    ctx.fillStyle = '#0f172a';
-    ctx.fillRect(-11, -65, 22, 14);
-    ctx.fillStyle = '#f59e0b';
-    ctx.fillRect(-11, -53, 22, 2);
-  } else if (char.style === 'fade_cap') {
-    ctx.fillStyle = '#1e293b';
-    ctx.beginPath();
-    ctx.arc(0, -50, 15, Math.PI, Math.PI * 2);
-    ctx.fill();
-    ctx.fillRect(dir * -2, -54, dir * 18, 4);
-  } else if (char.style === 'pigtails') {
-    ctx.fillStyle = char.hair;
-    ctx.beginPath();
-    ctx.arc(0, -50, 15, Math.PI, Math.PI * 2);
-    ctx.arc(-14, -48, 6, 0, Math.PI * 2);
-    ctx.arc(14, -48, 6, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (char.style === 'turban') {
-    ctx.fillStyle = '#f59e0b';
-    ctx.beginPath();
-    ctx.arc(0, -51, 17, 0, Math.PI * 2);
-    ctx.fill();
-  } else if (char.style === 'curly') {
-    ctx.fillStyle = char.hair;
-    ctx.beginPath();
-    ctx.arc(-8, -54, 8, 0, Math.PI * 2);
-    ctx.arc(8, -54, 8, 0, Math.PI * 2);
-    ctx.arc(0, -58, 8, 0, Math.PI * 2);
-    ctx.fill();
-  }
 
-  ctx.restore(); // Restaura la inclinación del cuerpo
+    ctx.translate(posX, groundY);
 
-  // BRAZOS SOSTENIENDO LA CUERDA
-  ctx.strokeStyle = char.skin;
-  ctx.lineWidth = 6;
-  ctx.lineCap = 'round';
+    const width = 120;
+    const height = 120;
 
-  const shoulderX = x + Math.sin(leanAngle) * -18;
-  const shoulderY = 210 - Math.cos(leanAngle) * 18;
-
-  // Manos sujetas a la altura exacta de la cuerda
-  const hand1X = isBlue ? x + 10 - pullDistance : x - 10 + pullDistance;
-  const hand2X = isBlue ? x + 24 - pullDistance : x - 24 + pullDistance;
-
-  ctx.beginPath();
-  ctx.moveTo(shoulderX, shoulderY);
-  ctx.lineTo(hand1X, ropeY);
-  ctx.moveTo(shoulderX, shoulderY);
-  ctx.lineTo(hand2X, ropeY);
-  ctx.stroke();
-
-  // Puños cerrados
-  ctx.fillStyle = char.skin;
-  ctx.beginPath();
-  ctx.arc(hand1X, ropeY, 4, 0, Math.PI * 2);
-  ctx.arc(hand2X, ropeY, 4, 0, Math.PI * 2);
-  ctx.fill();
-
-  ctx.restore();
+    // Dibujar imagen centrada horizontalmente y apoyada en el suelo
+    ctx.drawImage(img, -width / 2, -height, width, height);
+    ctx.restore();
+  });
 }
 
+// BUCLE PRINCIPAL DE ANIMACIÓN
 function animateStage() {
   if (!ctx) return;
   animationFrame++;
@@ -750,8 +626,12 @@ function animateStage() {
   drawBackground();
   drawRopeAndFlag(centerX);
 
-  blueCharacters.forEach(c => drawDetailedCharacter(c, centerX, true));
-  redCharacters.forEach(c => drawDetailedCharacter(c, centerX, false));
+  // Posiciones dinámicas de cada integrante respecto al centro
+  const blueOffsets = [-230, -150, -70];
+  const redOffsets = [70, 150, 230];
+
+  drawTeamPNG(imgAzul, blueOffsets, centerX, true);
+  drawTeamPNG(imgRojo, redOffsets, centerX, false);
 
   requestAnimationFrame(animateStage);
 }
