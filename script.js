@@ -541,9 +541,10 @@ function drawBackground() {
 
 // DIBUJO DE LA CUERDA Y PAÑUELO FLAMEANTE
 function drawRopeAndFlag(centerX) {
-  const ropeY = 202;
+  // AJUSTE: Cuerda elevada a la altura de las manos (175px)
+  const ropeY = 175;
 
-  // Sombra de la cuerda
+  // Sombra de la cuerda en el suelo
   ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
   ctx.lineWidth = 8;
   ctx.beginPath();
@@ -551,7 +552,7 @@ function drawRopeAndFlag(centerX) {
   ctx.lineTo(centerX + 320, 245);
   ctx.stroke();
 
-  // Cuerda principal (Cuerpo trenzado)
+  // Cuerda principal
   ctx.strokeStyle = '#854d0e';
   ctx.lineWidth = 12;
   ctx.lineCap = 'round';
@@ -560,7 +561,7 @@ function drawRopeAndFlag(centerX) {
   ctx.lineTo(centerX + 320, ropeY);
   ctx.stroke();
 
-  // Detalle de trenzado de soga
+  // Detalle de trenzado
   ctx.strokeStyle = '#eab308';
   ctx.lineWidth = 3;
   ctx.setLineDash([8, 6]);
@@ -585,19 +586,23 @@ function drawRopeAndFlag(centerX) {
   ctx.fill();
 }
 
-// 5. DIBUJO DE EQUIPOS CON IMÁGENES PNG
+// 5. DIBUJO DE EQUIPOS CON IMÁGENES PNG (Ajuste de proporciones)
 function drawTeamPNG(img, offsets, centerX, isBlue) {
   if (!ctx || !img.complete) return;
 
-  const groundY = 245; // Base de los pies sobre el césped
+  const groundY = 245; // Base de pisada
   const pullCycle = Math.sin(animationFrame * 0.14 + (isBlue ? 0 : Math.PI));
-  const animX = pullCycle * 6; // Balanceo de movimiento al halar
+  const animX = pullCycle * 6;
+
+  // DIMENSIONES ESPECÍFICAS PARA CADA EQUIPO
+  const width = isBlue ? 120 : 112;
+  const height = isBlue ? 120 : 112;
 
   offsets.forEach(xOffset => {
     const posX = centerX + xOffset + animX;
 
     ctx.save();
-    // Dibujar sombra ovalada en el suelo
+    // Sombra ovalada en los pies
     ctx.fillStyle = 'rgba(0, 0, 0, 0.3)';
     ctx.beginPath();
     ctx.ellipse(posX, groundY - 2, 25, 7, 0, 0, Math.PI * 2);
@@ -605,10 +610,7 @@ function drawTeamPNG(img, offsets, centerX, isBlue) {
 
     ctx.translate(posX, groundY);
 
-    const width = 120;
-    const height = 120;
-
-    // Dibujar imagen centrada horizontalmente y apoyada en el suelo
+    // Dibujar imagen apoyada en la línea de tierra
     ctx.drawImage(img, -width / 2, -height, width, height);
     ctx.restore();
   });
