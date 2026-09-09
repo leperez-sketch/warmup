@@ -283,15 +283,15 @@ const ctx = canvas ? canvas.getContext('2d') : null;
 
 // PERSONAJES MULTICULTURALES
 const blueCharacters = [
-  { name: 'Aisha', skin: '#8d5524', outfit: '#2563eb', hair: '#1e293b', style: 'hijab', xOffset: -220 },
+  { name: 'Aisha', skin: '#8d5524', outfit: '#2563eb', hair: '#1e293b', style: 'hijab', xOffset: -230 },
   { name: 'Budi', skin: '#f1c27d', outfit: '#1d4ed8', hair: '#0f172a', style: 'songkok', xOffset: -150 },
-  { name: 'Kofi', skin: '#452209', outfit: '#3b82f6', hair: '#0f172a', style: 'fade_cap', xOffset: -80 }
+  { name: 'Kofi', skin: '#452209', outfit: '#3b82f6', hair: '#0f172a', style: 'fade_cap', xOffset: -70 }
 ];
 
 const redCharacters = [
-  { name: 'Mei', skin: '#ffd1a4', outfit: '#dc2626', hair: '#1e1b4b', style: 'pigtails', xOffset: 80 },
+  { name: 'Mei', skin: '#ffd1a4', outfit: '#dc2626', hair: '#1e1b4b', style: 'pigtails', xOffset: 70 },
   { name: 'Ravi', skin: '#c68642', outfit: '#b91c1c', hair: '#1e293b', style: 'turban', xOffset: 150 },
-  { name: 'Mateo', skin: '#e0ac69', outfit: '#ef4444', hair: '#292524', style: 'curly', xOffset: 220 }
+  { name: 'Mateo', skin: '#e0ac69', outfit: '#ef4444', hair: '#292524', style: 'curly', xOffset: 230 }
 ];
 
 // REPRODUCTOR DE MÚSICA CON ARCHIVO EXTERNO
@@ -464,11 +464,11 @@ function handleAnswer(team, selectedIdx, correctIdx, btn) {
 
     if (isBlue) {
       scoreBlue++;
-      targetRopeOffset -= 30;
+      targetRopeOffset -= 35;
       document.getElementById('feedback-banner').innerText = "¡Blue Knights tiró con fuerza! 💪";
     } else {
       scoreRed++;
-      targetRopeOffset += 30;
+      targetRopeOffset += 35;
       document.getElementById('feedback-banner').innerText = "¡Red Dragons tiró con fuerza! 🔥";
     }
 
@@ -491,104 +491,250 @@ function handleAnswer(team, selectedIdx, correctIdx, btn) {
   }
 }
 
-// DIBUJO DE PERSONAJES
-function drawDetailedCharacter(char, centerX, isBlue) {
-  if (!ctx) return;
-  const x = centerX + char.xOffset;
-  const pullStrain = Math.sin(animationFrame * 0.15) * 3;
-  const leanAngle = isBlue ? -0.22 : 0.22;
-  const y = 200 + Math.sin(animationFrame * 0.1 + char.xOffset) * 2;
+// DIBUJO DEL ESCENARIO Y FONDO DEL ESTADIO
+function drawBackground() {
+  // Cielo en degradado
+  const skyGrad = ctx.createLinearGradient(0, 0, 0, 160);
+  skyGrad.addColorStop(0, '#0f172a');
+  skyGrad.addColorStop(1, '#1e293b');
+  ctx.fillStyle = skyGrad;
+  ctx.fillRect(0, 0, canvas.width, 160);
 
-  ctx.save();
-  ctx.translate(x + pullStrain, y);
-
-  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  // Luces de estadio
+  ctx.fillStyle = 'rgba(56, 189, 248, 0.08)';
   ctx.beginPath();
-  ctx.ellipse(0, 50, 18, 6, 0, 0, Math.PI * 2);
+  ctx.arc(canvas.width * 0.15, 0, 140, 0, Math.PI * 2);
+  ctx.arc(canvas.width * 0.85, 0, 140, 0, Math.PI * 2);
   ctx.fill();
 
-  ctx.strokeStyle = '#1e293b';
-  ctx.lineWidth = 7;
+  // Graderías de espectadores (Siluetas)
+  ctx.fillStyle = '#0f172a';
+  ctx.fillRect(0, 130, canvas.width, 35);
+  ctx.fillStyle = '#334155';
+  for (let i = 15; i < canvas.width; i += 22) {
+    ctx.beginPath();
+    ctx.arc(i, 145, 5, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  // Borde de la pista
+  ctx.fillStyle = '#475569';
+  ctx.fillRect(0, 165, canvas.width, 8);
+
+  // Césped deportivo con textura
+  const grassGrad = ctx.createLinearGradient(0, 173, 0, canvas.height);
+  grassGrad.addColorStop(0, '#15803d');
+  grassGrad.addColorStop(1, '#166534');
+  ctx.fillStyle = grassGrad;
+  ctx.fillRect(0, 173, canvas.width, canvas.height - 173);
+
+  // Línea central de la cancha
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+  ctx.lineWidth = 3;
   ctx.beginPath();
-  ctx.moveTo(-6, 25);
-  ctx.lineTo(-14, 48);
-  ctx.moveTo(6, 25);
-  ctx.lineTo(14, 48);
+  ctx.moveTo(0, 245);
+  ctx.lineTo(canvas.width, 245);
   ctx.stroke();
 
+  // Zona central de peligro (roja)
+  ctx.fillStyle = 'rgba(239, 68, 68, 0.25)';
+  ctx.fillRect(canvas.width / 2 - 30, 173, 60, canvas.height - 173);
+  ctx.strokeStyle = '#ef4444';
+  ctx.lineWidth = 2;
+  ctx.strokeRect(canvas.width / 2 - 30, 173, 60, canvas.height - 173);
+}
+
+// DIBUJO DE LA CUERDA Y PAÑUELO FLAMEANTE
+function drawRopeAndFlag(centerX) {
+  const ropeY = 202;
+
+  // Sombra de la cuerda
+  ctx.strokeStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.lineWidth = 8;
+  ctx.beginPath();
+  ctx.moveTo(centerX - 320, 245);
+  ctx.lineTo(centerX + 320, 245);
+  ctx.stroke();
+
+  // Cuerda principal (Cuerpo trenzado)
+  ctx.strokeStyle = '#854d0e';
+  ctx.lineWidth = 12;
+  ctx.lineCap = 'round';
+  ctx.beginPath();
+  ctx.moveTo(centerX - 320, ropeY);
+  ctx.lineTo(centerX + 320, ropeY);
+  ctx.stroke();
+
+  // Detalle de trenzado de soga
+  ctx.strokeStyle = '#eab308';
+  ctx.lineWidth = 3;
+  ctx.setLineDash([8, 6]);
+  ctx.beginPath();
+  ctx.moveTo(centerX - 320, ropeY - 2);
+  ctx.lineTo(centerX + 320, ropeY - 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Banderín / Pañuelo central
+  const wind = Math.sin(animationFrame * 0.18) * 6;
+  ctx.fillStyle = '#dc2626';
+  ctx.beginPath();
+  ctx.arc(centerX, ropeY, 7, 0, Math.PI * 2);
+  ctx.fill();
+
+  ctx.beginPath();
+  ctx.moveTo(centerX, ropeY);
+  ctx.quadraticCurveTo(centerX + wind, ropeY + 20, centerX + 10 + wind, ropeY + 38);
+  ctx.lineTo(centerX - 4 + wind, ropeY + 38);
+  ctx.quadraticCurveTo(centerX - 4 + wind, ropeY + 20, centerX, ropeY);
+  ctx.fill();
+}
+
+// DIBUJO ANIMADO DE PERSONAJES EN POSICIÓN DE FUERZA
+function drawDetailedCharacter(char, centerX, isBlue) {
+  if (!ctx) return;
+  const ropeY = 202;
+  const baseX = centerX + char.xOffset;
+
+  // Ciclo dinámico de halado
+  const pullCycle = Math.sin(animationFrame * 0.14 + (isBlue ? 0 : Math.PI));
+  const pullDistance = pullCycle * 7;
+  const dir = isBlue ? 1 : -1;
+
+  // Inclinación severa de fuerza (- es inclinación a la izquierda, + a la derecha)
+  const leanAngle = isBlue ? -0.38 + (pullCycle * 0.04) : 0.38 - (pullCycle * 0.04);
+  const x = baseX - (dir * pullDistance);
+  const y = 205;
+
+  ctx.save();
+
+  // Sombra del atleta en el suelo
+  ctx.fillStyle = 'rgba(0,0,0,0.3)';
+  ctx.beginPath();
+  ctx.ellipse(x, 244, 22, 6, 0, 0, Math.PI * 2);
+  ctx.fill();
+
+  // PIERNAS FIRMES EN EL SUELO (Dibujadas tras el torso)
+  ctx.strokeStyle = '#0f172a';
+  ctx.lineWidth = 8;
+  ctx.lineCap = 'round';
+
+  // Pierna trasera (extendida apoyando el esfuerzo)
+  const legBackX = isBlue ? x - 26 : x + 26;
+  ctx.beginPath();
+  ctx.moveTo(x, 215);
+  ctx.lineTo(legBackX, 242);
+  ctx.stroke();
+
+  // Pierna delantera (flectada haciendo palanca)
+  const kneeX = isBlue ? x + 10 : x - 10;
+  const footFrontX = isBlue ? x - 6 : x + 6;
+  ctx.beginPath();
+  ctx.moveTo(x, 215);
+  ctx.lineTo(kneeX, 230);
+  ctx.lineTo(footFrontX, 242);
+  ctx.stroke();
+
+  // TORSO Y CABEZA (Inclinados hacia atrás por la tensión)
+  ctx.save();
+  ctx.translate(x, 210);
   ctx.rotate(leanAngle);
 
+  // Camiseta / Uniforme
   ctx.fillStyle = char.outfit;
-  ctx.beginPath();
   if (ctx.roundRect) {
-    ctx.roundRect(-14, -10, 28, 36, 8);
+    ctx.roundRect(-13, -32, 26, 36, 6);
   } else {
-    ctx.rect(-14, -10, 28, 36);
+    ctx.fillRect(-13, -32, 26, 36);
   }
   ctx.fill();
 
+  // Cuello y Cabeza
   ctx.fillStyle = char.skin;
-  ctx.fillRect(-5, -16, 10, 8);
-
-  ctx.fillStyle = char.skin;
+  ctx.fillRect(-4, -38, 8, 8);
   ctx.beginPath();
-  ctx.arc(0, -26, 14, 0, Math.PI * 2);
+  ctx.arc(0, -48, 14, 0, Math.PI * 2);
   ctx.fill();
 
+  // Expresión facial (Esfuerzo / Ojos apretados y boca)
   ctx.fillStyle = '#0f172a';
-  ctx.fillRect(isBlue ? 2 : -6, -28, 4, 3);
-  ctx.fillRect(isBlue ? -6 : 2, -28, 4, 3);
-  ctx.strokeStyle = '#0f172a';
-  ctx.lineWidth = 2;
+  ctx.fillRect(dir * 2, -51, 3, 3);
   ctx.beginPath();
-  ctx.moveTo(-7, -32); ctx.lineTo(-2, -30);
-  ctx.moveTo(2, -30); ctx.lineTo(7, -32);
-  ctx.stroke();
+  ctx.arc(dir * 4, -43, 3, 0, Math.PI);
+  ctx.fill();
 
+  // Gota de sudor animada
+  ctx.fillStyle = '#38bdf8';
+  ctx.beginPath();
+  ctx.arc(-dir * 12, -50, 2, 0, Math.PI * 2);
+  ctx.fill();
+
+  // Peinados y Atavíos Culturales
   ctx.fillStyle = char.hair;
   if (char.style === 'hijab') {
     ctx.fillStyle = '#0284c7';
     ctx.beginPath();
-    ctx.arc(0, -26, 16, Math.PI * 0.8, Math.PI * 2.2);
+    ctx.arc(0, -48, 16, 0, Math.PI * 2);
     ctx.fill();
   } else if (char.style === 'songkok') {
     ctx.fillStyle = '#0f172a';
-    ctx.fillRect(-12, -42, 24, 13);
+    ctx.fillRect(-11, -65, 22, 14);
     ctx.fillStyle = '#f59e0b';
-    ctx.fillRect(-12, -31, 24, 2);
+    ctx.fillRect(-11, -53, 22, 2);
   } else if (char.style === 'fade_cap') {
     ctx.fillStyle = '#1e293b';
     ctx.beginPath();
-    ctx.arc(0, -28, 14, Math.PI, Math.PI * 2);
+    ctx.arc(0, -50, 15, Math.PI, Math.PI * 2);
     ctx.fill();
-    ctx.fillRect(isBlue ? 0 : -16, -32, 16, 4);
+    ctx.fillRect(dir * -2, -54, dir * 18, 4);
   } else if (char.style === 'pigtails') {
     ctx.fillStyle = char.hair;
     ctx.beginPath();
-    ctx.arc(0, -28, 14, Math.PI, Math.PI * 2);
-    ctx.arc(-14, -28, 6, 0, Math.PI * 2);
-    ctx.arc(14, -28, 6, 0, Math.PI * 2);
+    ctx.arc(0, -50, 15, Math.PI, Math.PI * 2);
+    ctx.arc(-14, -48, 6, 0, Math.PI * 2);
+    ctx.arc(14, -48, 6, 0, Math.PI * 2);
     ctx.fill();
   } else if (char.style === 'turban') {
     ctx.fillStyle = '#f59e0b';
     ctx.beginPath();
-    ctx.arc(0, -30, 16, 0, Math.PI * 2);
+    ctx.arc(0, -51, 17, 0, Math.PI * 2);
     ctx.fill();
   } else if (char.style === 'curly') {
     ctx.fillStyle = char.hair;
     ctx.beginPath();
-    ctx.arc(-8, -32, 8, 0, Math.PI * 2);
-    ctx.arc(8, -32, 8, 0, Math.PI * 2);
-    ctx.arc(0, -36, 8, 0, Math.PI * 2);
+    ctx.arc(-8, -54, 8, 0, Math.PI * 2);
+    ctx.arc(8, -54, 8, 0, Math.PI * 2);
+    ctx.arc(0, -58, 8, 0, Math.PI * 2);
     ctx.fill();
   }
 
+  ctx.restore(); // Restaura la inclinación del cuerpo
+
+  // BRAZOS SOSTENIENDO LA CUERDA
   ctx.strokeStyle = char.skin;
   ctx.lineWidth = 6;
+  ctx.lineCap = 'round';
+
+  const shoulderX = x + Math.sin(leanAngle) * -18;
+  const shoulderY = 210 - Math.cos(leanAngle) * 18;
+
+  // Manos sujetas a la altura exacta de la cuerda
+  const hand1X = isBlue ? x + 10 - pullDistance : x - 10 + pullDistance;
+  const hand2X = isBlue ? x + 24 - pullDistance : x - 24 + pullDistance;
+
   ctx.beginPath();
-  ctx.moveTo(0, 0);
-  ctx.lineTo(isBlue ? 12 : -12, 10);
+  ctx.moveTo(shoulderX, shoulderY);
+  ctx.lineTo(hand1X, ropeY);
+  ctx.moveTo(shoulderX, shoulderY);
+  ctx.lineTo(hand2X, ropeY);
   ctx.stroke();
+
+  // Puños cerrados
+  ctx.fillStyle = char.skin;
+  ctx.beginPath();
+  ctx.arc(hand1X, ropeY, 4, 0, Math.PI * 2);
+  ctx.arc(hand2X, ropeY, 4, 0, Math.PI * 2);
+  ctx.fill();
 
   ctx.restore();
 }
@@ -598,37 +744,11 @@ function animateStage() {
   animationFrame++;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-  ropeOffset += (targetRopeOffset - ropeOffset) * 0.1;
+  ropeOffset += (targetRopeOffset - ropeOffset) * 0.08;
   const centerX = canvas.width / 2 + ropeOffset;
 
-  ctx.fillStyle = '#1e293b';
-  ctx.fillRect(0, 245, canvas.width, 95);
-  ctx.fillStyle = '#334155';
-  ctx.fillRect(0, 245, canvas.width, 4);
-
-  ctx.strokeStyle = '#38bdf8';
-  ctx.lineWidth = 2;
-  ctx.setLineDash([8, 8]);
-  ctx.beginPath();
-  ctx.moveTo(canvas.width / 2, 0);
-  ctx.lineTo(canvas.width / 2, canvas.height);
-  ctx.stroke();
-  ctx.setLineDash([]);
-
-  ctx.strokeStyle = '#d97706';
-  ctx.lineWidth = 10;
-  ctx.beginPath();
-  ctx.moveTo(centerX - 280, 215);
-  ctx.lineTo(centerX + 280, 215);
-  ctx.stroke();
-
-  ctx.fillStyle = '#ef4444';
-  ctx.beginPath();
-  ctx.moveTo(centerX, 215);
-  ctx.lineTo(centerX, 180);
-  ctx.lineTo(centerX + 20, 192);
-  ctx.lineTo(centerX, 204);
-  ctx.fill();
+  drawBackground();
+  drawRopeAndFlag(centerX);
 
   blueCharacters.forEach(c => drawDetailedCharacter(c, centerX, true));
   redCharacters.forEach(c => drawDetailedCharacter(c, centerX, false));
